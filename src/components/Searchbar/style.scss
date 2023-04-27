@@ -1,10 +1,14 @@
 .searchbar {
+  display: flex;
+  justify-content: center;
+  width: 100%;
   .container {
     background-color: #0c131f;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 2rem;
+    width: 100%;
 
     .formstyle {
       display: flex;
@@ -48,6 +52,34 @@
             font-size: 1.5rem;
             height: 1.5rem;
           }
+        }
+      }
+    }
+  }
+
+  .results {
+    position: absolute;
+    top: 6.5rem;
+    width: 95%;
+    display: flex;
+    justify-content: center;
+    .results__container {
+      border-radius: 15px;
+      width: 100%;
+      max-width: 59rem;
+      background-color: #40cdf2;
+      padding: 1.5rem;
+
+      h2 {
+        font-size: 1rem;
+        font-weight: normal;
+      }
+
+      & > div {
+        margin-top: 1rem;
+
+        &:first-child {
+          margin-top: 0;
         }
       }
     }

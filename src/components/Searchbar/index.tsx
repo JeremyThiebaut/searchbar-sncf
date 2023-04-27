@@ -5,7 +5,7 @@ import "./style.scss";
 
 interface autoCompleteResults {
   local_name: string;
-  country_name: string;
+  unique_name: string;
 }
 
 interface PopularResult {
@@ -14,9 +14,13 @@ interface PopularResult {
 
 const Searchbar: React.FC = () => {
   const [searchValue, setSearchValue] = useState<string>("");
-  const [autoCompleteResults, setAutoCompleteResults] = useState<autoCompleteResults[]>([]);
+  const [autoCompleteResults, setAutoCompleteResults] = useState<
+    autoCompleteResults[]
+  >([]);
   const [popularResults, setPopularResults] = useState<PopularResult[]>([]);
-  const [PopularFromResults, setPopularFromResults] = useState<PopularResult[]>([]);
+  const [PopularFromResults, setPopularFromResults] = useState<PopularResult[]>(
+    []
+  );
   const [showResults, setShowResults] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLDivElement>(null);
@@ -30,7 +34,7 @@ const Searchbar: React.FC = () => {
 
   const handleClickOutside = (event: MouseEvent) => {
     if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
-      setSearchValue("");
+      // setSearchValue("");
       setShowResults(false);
     }
   };
@@ -56,7 +60,7 @@ const Searchbar: React.FC = () => {
       setPopularFromResults(popularFromData);
       setShowResults(true);
     } else {
-      setAutoCompleteResults([]);
+      // setAutoCompleteResults([]);
       setPopularResults([]);
       setPopularFromResults([]);
       setShowResults(false);
@@ -64,8 +68,8 @@ const Searchbar: React.FC = () => {
   };
 
   return (
-    <div className="searchbar">
-      <div className="container" ref={inputRef}>
+    <div className="searchbar" ref={inputRef}>
+      <div className="container">
         <form className="formstyle">
           <input
             className="textstyle"
@@ -85,28 +89,32 @@ const Searchbar: React.FC = () => {
 
       {showResults && (
         <div className="results">
-          <div className="autocomplete">
-            {autoCompleteResults.map((result: autoCompleteResults) => (
-              <div key={result.local_name}>
-                {result.local_name}, {result.country_name}
-              </div>
-            ))}
-          </div>
+          <div className="results__container">
+            <div className="autocomplete">
+              <h2>Suggestions</h2>
+              {autoCompleteResults.map((result: autoCompleteResults) => (
+                <div key={result.local_name}>
+                  {result.unique_name}
+                </div>
+              ))}
+            </div>
 
-          <div className="popular">
-            <h2>5 villes les plus populaires</h2>
-            {popularResults.map((result: PopularResult) => (
-              <div key={result.unique_name}>{result.unique_name}</div>
-            ))}
-          </div>
+            <div className="popular">
+              <h2>5 villes les plus populaires</h2>
+              {popularResults.map((result: PopularResult) => (
+                <div key={result.unique_name}>{result.unique_name}</div>
+              ))}
+            </div>
 
-          <div>
-            <h2>
-              5 villes les plus populaires au départ de la ville "{searchValue}"
-            </h2>
-            {PopularFromResults.map((result: PopularResult) => (
-              <div key={result.unique_name}>{result.unique_name}</div>
-            ))}
+            <div className="popularresults">
+              <h2>
+                5 villes les plus populaires au départ de la ville "
+                {searchValue}"
+              </h2>
+              {PopularFromResults.map((result: PopularResult) => (
+                <div key={result.unique_name}>{result.unique_name}</div>
+              ))}
+            </div>
           </div>
         </div>
       )}
