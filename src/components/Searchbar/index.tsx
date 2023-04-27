@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Icon } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import "./style.scss";
@@ -14,13 +14,26 @@ interface PopularResult {
 
 const Searchbar: React.FC = () => {
   const [searchValue, setSearchValue] = useState<string>("");
-  const [autoCompleteResults, setAutoCompleteResults] = useState<
-    autoCompleteResults[]
-  >([]);
+  const [autoCompleteResults, setAutoCompleteResults] = useState<autoCompleteResults[]>([]);
   const [popularResults, setPopularResults] = useState<PopularResult[]>([]);
-  const [PopularFromResults, setPopularFromResults] = useState<PopularResult[]>(
-    []
-  );
+  const [PopularFromResults, setPopularFromResults] = useState<PopularResult[]>([]);
+  const [showResults, setShowResults] = useState<boolean>(false);
+
+  const inputRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+      setSearchValue("");
+      setShowResults(false);
+    }
+  };
 
   const handleSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -41,16 +54,18 @@ const Searchbar: React.FC = () => {
       const popularFromResponse = await fetch(popularFromUrl);
       const popularFromData = await popularFromResponse.json();
       setPopularFromResults(popularFromData);
+      setShowResults(true);
     } else {
       setAutoCompleteResults([]);
       setPopularResults([]);
       setPopularFromResults([]);
+      setShowResults(false);
     }
   };
 
   return (
     <div className="searchbar">
-      <div className="container">
+      <div className="container" ref={inputRef}>
         <form className="formstyle">
           <input
             className="textstyle"
@@ -58,6 +73,7 @@ const Searchbar: React.FC = () => {
             type="text"
             value={searchValue}
             onChange={handleSearchChange}
+            onClick={() => setShowResults(true)}
           />
           <div className="allcontent">
             <button className="submitstyle" type="submit">
@@ -67,29 +83,33 @@ const Searchbar: React.FC = () => {
         </form>
       </div>
 
-      <div className="autocomplete">
-        {autoCompleteResults.map((result: autoCompleteResults) => (
-          <div key={result.local_name}>
-            {result.local_name}, {result.country_name}
+      {showResults && (
+        <div className="results">
+          <div className="autocomplete">
+            {autoCompleteResults.map((result: autoCompleteResults) => (
+              <div key={result.local_name}>
+                {result.local_name}, {result.country_name}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="popular">
-        <h2>5 villes les plus populaires</h2>
-        {popularResults.map((result: PopularResult) => (
-          <div key={result.unique_name}>{result.unique_name}</div>
-        ))}
-      </div>
+          <div className="popular">
+            <h2>5 villes les plus populaires</h2>
+            {popularResults.map((result: PopularResult) => (
+              <div key={result.unique_name}>{result.unique_name}</div>
+            ))}
+          </div>
 
-      <div>
-        <h2>
-          5 viles les plus populaires au départ de la ville "{searchValue}"
-        </h2>
-        {PopularFromResults.map((result: PopularResult) => (
-          <div key={result.unique_name}>{result.unique_name}</div>
-        ))}
-      </div>
+          <div>
+            <h2>
+              5 villes les plus populaires au départ de la ville "{searchValue}"
+            </h2>
+            {PopularFromResults.map((result: PopularResult) => (
+              <div key={result.unique_name}>{result.unique_name}</div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
