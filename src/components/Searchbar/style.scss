@@ -33,6 +33,13 @@
           height: 4rem;
           padding: 0;
           border: 0;
+          transition: 0.25s;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #40cdf2;
+            transition: 0.25s;
+          }
 
           .iconsubmit {
             width: 100%;
