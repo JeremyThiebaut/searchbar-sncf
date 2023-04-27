@@ -8,11 +8,16 @@ interface autoCompleteResults {
   country_name: string;
 }
 
+interface PopularResult {
+  unique_name: string;
+}
+
 const Searchbar: React.FC = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [autoCompleteResults, setAutoCompleteResults] = useState<
     autoCompleteResults[]
   >([]);
+  const [popularResults, setPopularResults] = useState<PopularResult[]>([]);
 
   const handleSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -22,6 +27,11 @@ const Searchbar: React.FC = () => {
     const autocompleteResponse = await fetch(autocompleteUrl);
     const autocompleteData = await autocompleteResponse.json();
     setAutoCompleteResults(autocompleteData);
+
+    const popularUrl = "https://api.comparatrip.eu/cities/popular/5";
+    const popularResponse = await fetch(popularUrl);
+    const popularData = await popularResponse.json();
+    setPopularResults(popularData);
   };
 
   return (
@@ -48,6 +58,13 @@ const Searchbar: React.FC = () => {
           <div key={result.local_name}>
             {result.local_name}, {result.country_name}
           </div>
+        ))}
+      </div>
+
+      <div className="popular">
+        <h2>5 villes les plus populaires</h2>
+        {popularResults.map((result: PopularResult) => (
+          <div key={result.unique_name}>{result.unique_name}</div>
         ))}
       </div>
     </div>
