@@ -1,0 +1,48 @@
+.searchbar {
+  .container {
+    background-color: #0c131f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+
+    .formstyle {
+      display: flex;
+      width: 100%;
+      max-width: 59rem;
+      .textstyle {
+        border-radius: 50px;
+        width: 100%;
+        padding: 0 1.5rem;
+        border: none;
+        font-size: 15px;
+        height: 4rem;
+      }
+
+      .allcontent {
+        position: relative;
+
+        .submitstyle {
+          background-color: #8de8fe;
+          color: #0c131f;
+          position: absolute;
+          top: 0;
+          right: 0;
+          border-radius: 50%;
+          width: 4rem;
+          height: 4rem;
+          padding: 0;
+          border: 0;
+
+          .iconsubmit {
+            width: 100%;
+            height: 100%;
+            margin: auto;
+            font-size: 1.5rem;
+            height: 1.5rem;
+          }
+        }
+      }
+    }
+  }
+}
