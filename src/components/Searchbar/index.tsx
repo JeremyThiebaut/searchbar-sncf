@@ -18,20 +18,34 @@ const Searchbar: React.FC = () => {
     autoCompleteResults[]
   >([]);
   const [popularResults, setPopularResults] = useState<PopularResult[]>([]);
+  const [PopularFromResults, setPopularFromResults] = useState<PopularResult[]>(
+    []
+  );
 
   const handleSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchValue(value);
 
-    const autocompleteUrl = `https://api.comparatrip.eu/cities/autocomplete/?q=${value}`;
-    const autocompleteResponse = await fetch(autocompleteUrl);
-    const autocompleteData = await autocompleteResponse.json();
-    setAutoCompleteResults(autocompleteData);
+    if (value) {
+      const autocompleteUrl = `https://api.comparatrip.eu/cities/autocomplete/?q=${value}`;
+      const autocompleteResponse = await fetch(autocompleteUrl);
+      const autocompleteData = await autocompleteResponse.json();
+      setAutoCompleteResults(autocompleteData);
 
-    const popularUrl = "https://api.comparatrip.eu/cities/popular/5";
-    const popularResponse = await fetch(popularUrl);
-    const popularData = await popularResponse.json();
-    setPopularResults(popularData);
+      const popularUrl = "https://api.comparatrip.eu/cities/popular/5";
+      const popularResponse = await fetch(popularUrl);
+      const popularData = await popularResponse.json();
+      setPopularResults(popularData);
+
+      const popularFromUrl = `https://api.comparatrip.eu/cities/popular/from/${value}/5`;
+      const popularFromResponse = await fetch(popularFromUrl);
+      const popularFromData = await popularFromResponse.json();
+      setPopularFromResults(popularFromData);
+    } else {
+      setAutoCompleteResults([]);
+      setPopularResults([]);
+      setPopularFromResults([]);
+    }
   };
 
   return (
@@ -64,6 +78,15 @@ const Searchbar: React.FC = () => {
       <div className="popular">
         <h2>5 villes les plus populaires</h2>
         {popularResults.map((result: PopularResult) => (
+          <div key={result.unique_name}>{result.unique_name}</div>
+        ))}
+      </div>
+
+      <div>
+        <h2>
+          5 viles les plus populaires au départ de la ville "{searchValue}"
+        </h2>
+        {PopularFromResults.map((result: PopularResult) => (
           <div key={result.unique_name}>{result.unique_name}</div>
         ))}
       </div>
