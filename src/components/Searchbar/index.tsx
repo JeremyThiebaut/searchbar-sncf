@@ -19,6 +19,7 @@ interface PopularResult {
 }
 
 const Searchbar: React.FC = () => {
+  // states de la barre de recherche
   const [searchValue, setSearchValue] = useState<string>("");
   const [autoCompleteResults, setAutoCompleteResults] = useState<
     autoCompleteResults[]
@@ -29,9 +30,11 @@ const Searchbar: React.FC = () => {
   );
   const [showResults, setShowResults] = useState<boolean>(false);
 
+  // Références aux éléments DOM
   const buttonRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  // Fonction pour gérer le click à l'extérieur de la barre de recherche
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
     return () => {
@@ -40,6 +43,7 @@ const Searchbar: React.FC = () => {
   }, []);
 
   const handleClickOutside = (event: MouseEvent) => {
+    // Si l'utilisateur clique à l'extérieur de la barre de recherche, on vide les résultats et on ferme la liste des suggestions de recherche
     if (
       buttonRef.current &&
       !buttonRef.current.contains(event.target as Node) &&
@@ -53,6 +57,7 @@ const Searchbar: React.FC = () => {
     }
   };
 
+  // Fonction pour chercher les villes populaires
   const searchPopularCitys = async () => {
     const popularUrl = "https://api.comparatrip.eu/cities/popular/5";
     const popularResponse = await fetch(popularUrl);
@@ -60,70 +65,88 @@ const Searchbar: React.FC = () => {
     setPopularResults(popularData);
   };
 
+  // Appel de la fonction de recherche des villes populaires
   useEffect(() => {
     searchPopularCitys();
   }, []);
 
+  // Fonction pour gérer les changements dans la barre de recherche
   const handleSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchValue(value);
 
     if (value) {
+      // Si la barre de recherche contient quelque chose, on cherche les villes qui correspondent à la recherche
       const autocompleteUrl = `https://api.comparatrip.eu/cities/autocomplete/?q=${value}`;
       const autocompleteResponse = await fetch(autocompleteUrl);
       const autocompleteData = await autocompleteResponse.json();
       setAutoCompleteResults(autocompleteData);
 
+      // On cherche également les villes les plus populaires au départ de la ville recherchée
       const popularFromUrl = `https://api.comparatrip.eu/cities/popular/from/${value}/5`;
       const popularFromResponse = await fetch(popularFromUrl);
       const popularFromData = await popularFromResponse.json();
       setPopularFromResults(popularFromData);
     } else {
+      // Si la barre de recherche est vide, on vide également les résultats
       setAutoCompleteResults([]);
       setPopularFromResults([]);
     }
   };
 
-  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=";
+  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query="; // URL de Google Maps
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    window.location.href = googleMapsUrl + encodeURIComponent(searchValue);
+    // Fonction de gestion de la soumission du formulaire
+    event.preventDefault(); // Empêche la soumission par défaut
+    window.location.href = googleMapsUrl + encodeURIComponent(searchValue); // Redirige l'utilisateur vers l'URL de Google Maps avec la valeur de recherche encodée
   };
 
   return (
-    <div className="searchbar">
-      <div className="container">
-        <form className="formstyle" onSubmit={handleSearchSubmit}>
-          <div className={showResults ? "blur" : ""}></div>
-          <div className="allcontent" ref={buttonRef}>
+    <div className="searchbar"> {/* Conteneur principal */}
+      <div className="container"> {/* Conteneur pour le formulaire */}
+        <form className="formstyle" onSubmit={handleSearchSubmit}> {/* Formulaire de recherche */}
+          <div className={showResults ? "blur" : ""}></div> {/* Div pour flouter les résultats lorsqu'ils sont affichés */}
+          <div className="allcontent" ref={buttonRef}> {/* Conteneur pour le champ de recherche et le bouton de soumission */}
             <input
-              className="textstyle"
-              placeholder="Une destination, demande..."
-              type="text"
-              value={searchValue}
-              onChange={handleSearchChange}
-              onClick={() => setShowResults(true)}
+              className="textstyle" // Champ de recherche
+              placeholder="Une destination, demande..." // Placeholder pour le champ de recherche
+              type="text" // Type de champ de saisie
+              value={searchValue} // Valeur du champ de recherche
+              onChange={handleSearchChange} // Fonction de gestion du changement de valeur du champ de recherche
+              onClick={() => setShowResults(true)} // Fonction de gestion du clic sur le champ de recherche
             />
-            <button className="submitstyle" type="submit">
-              <Icon className="iconsubmit" name="search" />
+            <button
+              className="submitstyle" // Bouton de soumission
+              type="submit" // Type de bouton
+              data-testid="search-button" // ID de test
+            >
+              <Icon className="iconsubmit" name="search" /> {/* Icône de recherche de Semantic UI */}
             </button>
           </div>
         </form>
       </div>
 
-      {showResults && (
+      {showResults && ( // Affiche les résultats s'il y a une valeur de recherche
         <div className="results">
+          
+          {/* Conteneur des résultats */}
           <div className="results__container" ref={resultsRef}>
-            {searchValue && (
+          
+            {/* Conteneur pour les résultats de recherche */}
+            {searchValue && ( // Affiche les résultats de l'autocomplétion s'il y a une valeur de recherche
               <div className="autocomplete">
-                <h2>Suggestions :</h2>
+                <h2>Suggestions :</h2> 
+                {/* Titre pour les résultats de l'autocomplétion */}
                 <ul>
+                  {/* Liste pour les résultats de l'autocomplétion */}
                   {autoCompleteResults.map((result: autoCompleteResults) => (
                     <li
                       key={result.local_name}
                       onClick={() => {
+                        // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
                         setSearchValue(result.unique_name);
+                        // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
                         handleSearchChange({
                           target: {
                             value: result.unique_name,
@@ -150,7 +173,9 @@ const Searchbar: React.FC = () => {
                     <li
                       key={result.unique_name}
                       onClick={() => {
+                        // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
                         setSearchValue(result.unique_name);
+                        // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
                         handleSearchChange({
                           target: {
                             value: result.unique_name,
@@ -166,6 +191,7 @@ const Searchbar: React.FC = () => {
               </div>
             )}
 
+            {/* Liste pour les résultats des villes populaires */}
             <div className="popular">
               <h2>5 villes les plus populaires :</h2>
               <ul>
@@ -173,7 +199,9 @@ const Searchbar: React.FC = () => {
                   <li
                     key={result.unique_name}
                     onClick={() => {
+                      // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
                       setSearchValue(result.unique_name);
+                      // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
                       handleSearchChange({
                         target: {
                           value: result.unique_name,
