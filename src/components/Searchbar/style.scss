@@ -1,7 +1,19 @@
+.blur {
+  backdrop-filter: blur(2px);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(132, 139, 155, 0.7);
+}
+
 .searchbar {
   display: flex;
   justify-content: center;
   width: 100%;
+
+  background-color: rgba(0, 0, 0, 0.871);
   .container {
     background-color: #0c131f;
     display: flex;
@@ -14,13 +26,18 @@
       display: flex;
       width: 100%;
       max-width: 59rem;
-      .textstyle {
-        border-radius: 50px;
+
+      .allcontent {
         width: 100%;
-        padding: 0 1.5rem;
-        border: none;
-        font-size: 15px;
-        height: 4rem;
+        .textstyle {
+          border-radius: 50px;
+          width: 100%;
+          position: relative;
+          padding: 0 1.5rem;
+          border: none;
+          font-size: 15px;
+          height: 4rem;
+        }
       }
 
       .allcontent {
@@ -58,15 +75,20 @@
   }
 
   .results {
+    border-radius: 15px;
     position: absolute;
+    overflow: hidden;
     top: 6.5rem;
     width: 95%;
+    max-width: 59rem;
     display: flex;
     justify-content: center;
+
     .results__container {
-      border-radius: 15px;
       width: 100%;
-      max-width: 59rem;
+      overflow: auto;
+      scrollbar-color: #127996;
+      max-height: 50vh;
       background-color: #40cdf2;
       padding: 1.5rem;
 

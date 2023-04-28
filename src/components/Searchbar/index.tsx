@@ -23,7 +23,8 @@ const Searchbar: React.FC = () => {
   );
   const [showResults, setShowResults] = useState<boolean>(false);
 
-  const inputRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     document.addEventListener("click", handleClickOutside);
@@ -33,11 +34,27 @@ const Searchbar: React.FC = () => {
   }, []);
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
-      // setSearchValue("");
+    if (
+      buttonRef.current &&
+      !buttonRef.current.contains(event.target as Node) &&
+      resultsRef.current &&
+      !resultsRef.current.contains(event.target as Node)
+    ) {
       setShowResults(false);
+      setSearchValue("");
     }
   };
+
+  const searchPopularCitys = async () => {
+    const popularUrl = "https://api.comparatrip.eu/cities/popular/5";
+    const popularResponse = await fetch(popularUrl);
+    const popularData = await popularResponse.json();
+    setPopularResults(popularData);
+  };
+
+  useEffect(() => {
+    searchPopularCitys();
+  }, []);
 
   const handleSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -49,37 +66,30 @@ const Searchbar: React.FC = () => {
       const autocompleteData = await autocompleteResponse.json();
       setAutoCompleteResults(autocompleteData);
 
-      const popularUrl = "https://api.comparatrip.eu/cities/popular/5";
-      const popularResponse = await fetch(popularUrl);
-      const popularData = await popularResponse.json();
-      setPopularResults(popularData);
-
       const popularFromUrl = `https://api.comparatrip.eu/cities/popular/from/${value}/5`;
       const popularFromResponse = await fetch(popularFromUrl);
       const popularFromData = await popularFromResponse.json();
       setPopularFromResults(popularFromData);
-      setShowResults(true);
     } else {
-      // setAutoCompleteResults([]);
-      setPopularResults([]);
+      setAutoCompleteResults([]);
       setPopularFromResults([]);
-      setShowResults(false);
     }
   };
 
   return (
-    <div className="searchbar" ref={inputRef}>
+    <div className="searchbar">
       <div className="container">
         <form className="formstyle">
-          <input
-            className="textstyle"
-            placeholder="Une destination, demande..."
-            type="text"
-            value={searchValue}
-            onChange={handleSearchChange}
-            onClick={() => setShowResults(true)}
-          />
-          <div className="allcontent">
+          <div className={showResults ? "blur" : ""}></div>
+          <div className="allcontent" ref={buttonRef}>
+            <input
+              className="textstyle"
+              placeholder="Une destination, demande..."
+              type="text"
+              value={searchValue}
+              onChange={handleSearchChange}
+              onClick={() => setShowResults(true)}
+            />
             <button className="submitstyle" type="submit">
               <Icon className="iconsubmit" name="search" />
             </button>
@@ -89,15 +99,27 @@ const Searchbar: React.FC = () => {
 
       {showResults && (
         <div className="results">
-          <div className="results__container">
-            <div className="autocomplete">
-              <h2>Suggestions</h2>
-              {autoCompleteResults.map((result: autoCompleteResults) => (
-                <div key={result.local_name}>
-                  {result.unique_name}
-                </div>
-              ))}
-            </div>
+          <div className="results__container" ref={resultsRef}>
+            {autoCompleteResults && (
+              <div className="autocomplete">
+                <h2>Suggestions</h2>
+                {autoCompleteResults.map((result: autoCompleteResults) => (
+                  <div
+                    key={result.local_name}
+                    onClick={() => {
+                      setSearchValue(result.unique_name);
+                      handleSearchChange({
+                        target: {
+                          value: result.unique_name,
+                        },
+                      } as ChangeEvent<HTMLInputElement>);
+                    }}
+                  >
+                    {result.unique_name}
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="popular">
               <h2>5 villes les plus populaires</h2>
