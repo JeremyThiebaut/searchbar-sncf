@@ -1,4 +1,10 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Icon } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import "./style.scss";
@@ -42,6 +48,8 @@ const Searchbar: React.FC = () => {
     ) {
       setShowResults(false);
       setSearchValue("");
+      setAutoCompleteResults([]);
+      setPopularFromResults([]);
     }
   };
 
@@ -76,10 +84,17 @@ const Searchbar: React.FC = () => {
     }
   };
 
+  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=";
+
+  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    window.location.href = googleMapsUrl + encodeURIComponent(searchValue);
+  };
+
   return (
     <div className="searchbar">
       <div className="container">
-        <form className="formstyle">
+        <form className="formstyle" onSubmit={handleSearchSubmit}>
           <div className={showResults ? "blur" : ""}></div>
           <div className="allcontent" ref={buttonRef}>
             <input
@@ -100,12 +115,63 @@ const Searchbar: React.FC = () => {
       {showResults && (
         <div className="results">
           <div className="results__container" ref={resultsRef}>
-            {autoCompleteResults && (
+            {searchValue && (
               <div className="autocomplete">
-                <h2>Suggestions</h2>
-                {autoCompleteResults.map((result: autoCompleteResults) => (
-                  <div
-                    key={result.local_name}
+                <h2>Suggestions :</h2>
+                <ul>
+                  {autoCompleteResults.map((result: autoCompleteResults) => (
+                    <li
+                      key={result.local_name}
+                      onClick={() => {
+                        setSearchValue(result.unique_name);
+                        handleSearchChange({
+                          target: {
+                            value: result.unique_name,
+                          },
+                        } as ChangeEvent<HTMLInputElement>);
+                      }}
+                    >
+                      <Icon name="building outline" />
+                      {result.unique_name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {searchValue && (
+              <div className="popularresults">
+                <h2>
+                  5 villes les plus populaires au départ de la ville "
+                  {searchValue}"
+                </h2>
+                <ul>
+                  {PopularFromResults.map((result: PopularResult) => (
+                    <li
+                      key={result.unique_name}
+                      onClick={() => {
+                        setSearchValue(result.unique_name);
+                        handleSearchChange({
+                          target: {
+                            value: result.unique_name,
+                          },
+                        } as ChangeEvent<HTMLInputElement>);
+                      }}
+                    >
+                      <Icon name="building outline" />
+                      {result.unique_name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="popular">
+              <h2>5 villes les plus populaires :</h2>
+              <ul>
+                {popularResults.map((result: PopularResult) => (
+                  <li
+                    key={result.unique_name}
                     onClick={() => {
                       setSearchValue(result.unique_name);
                       handleSearchChange({
@@ -115,27 +181,11 @@ const Searchbar: React.FC = () => {
                       } as ChangeEvent<HTMLInputElement>);
                     }}
                   >
+                    <Icon name="building outline" />
                     {result.unique_name}
-                  </div>
+                  </li>
                 ))}
-              </div>
-            )}
-
-            <div className="popular">
-              <h2>5 villes les plus populaires</h2>
-              {popularResults.map((result: PopularResult) => (
-                <div key={result.unique_name}>{result.unique_name}</div>
-              ))}
-            </div>
-
-            <div className="popularresults">
-              <h2>
-                5 villes les plus populaires au départ de la ville "
-                {searchValue}"
-              </h2>
-              {PopularFromResults.map((result: PopularResult) => (
-                <div key={result.unique_name}>{result.unique_name}</div>
-              ))}
+              </ul>
             </div>
           </div>
         </div>

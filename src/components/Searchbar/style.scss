@@ -1,3 +1,5 @@
+@use "src/styles/vars";
+
 .blur {
   backdrop-filter: blur(2px);
   position: absolute;
@@ -15,7 +17,7 @@
 
   background-color: rgba(0, 0, 0, 0.871);
   .container {
-    background-color: #0c131f;
+    background-color: vars.$dark-color;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -45,7 +47,7 @@
 
         .submitstyle {
           background-color: #8de8fe;
-          color: #0c131f;
+          color: vars.$dark-color;
           position: absolute;
           top: 0;
           right: 0;
@@ -88,8 +90,8 @@
       width: 100%;
       overflow: auto;
       scrollbar-color: #127996;
-      max-height: 50vh;
-      background-color: #40cdf2;
+      max-height: calc(100vh - 9rem);
+      background-color: #fff;
       padding: 1.5rem;
 
       h2 {
@@ -103,6 +105,11 @@
         &:first-child {
           margin-top: 0;
         }
+      }
+
+      li {
+        margin-left: 1rem;
+        font-weight: bold;
       }
     }
   }
