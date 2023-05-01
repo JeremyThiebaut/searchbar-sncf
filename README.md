@@ -1,46 +1,124 @@
-# Getting Started with Create React App
+# Searchbar React
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Ce projet consiste en une barre de recherche en React qui permet à l'utilisateur de chercher une ville et d'afficher les villes les plus populaires au départ de la ville recherchée.
 
-## Available Scripts
+## Prérequis :
 
-In the project directory, you can run:
+- **Node.js** version 14.0 ou plus récente
+- **npm** version 6.14 ou plus récente
+- **git** version 2.28 ou plus récente
 
-### `npm start`
+## Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. Cloner le dépot git:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+git clone https://github.com/votre_utilisateur/searchbar-react.git
+```
 
-### `npm test`
+2. Aller dans le dossier du projet:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+cd searchbar-react
+```
 
-### `npm run build`
+3. Installer les dépendances :
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Utilisation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Démarrer le serveur de développement:
 
-### `npm run eject`
+```bash
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+2. Ouvrir http://localhost:3000 dans votre navigateur.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. Dans la barre de recherche, taper le nom d'une ville pour afficher les suggestions de recherche.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+4. Sélectionner une ville dans les suggestions de recherche pour afficher les villes les plus populaires au départ de cette ville.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Composants
 
-## Learn More
+### Searchbar
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Le composant Searchbar permet de rechercher des villes et affiche une liste de résultats. Les utilisateurs peuvent cliquer sur un résultat pour afficher les villes populaires au départ de cette ville.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+#### Propriétés
+
+Ce composant ne prend pas de propriétés.
+
+#### Exemple d'utilisation
+
+```Javascript
+import Searchbar from './components/Searchbar';
+
+function App() {
+  return (
+    <div>
+      <Searchbar />
+    </div>
+  );
+}
+```
+
+### AutocompleteResults
+
+Le composant AutocompleteResults affiche les résultats de la recherche pour le composant Searchbar.
+
+#### Propriétés
+
+| Nom             | Type         | Description                                                                         |
+| --------------- | ------------ | ----------------------------------------------------------------------------------- |
+| \`Results\`     | \`string[]\` | Tableau des résultats de la recherche                                               |
+| \`handleClick\` | \`function\` | Fonction pour gérer le clic sur un élément de la liste de résultats de la recherche |
+
+#### Exemple d'utilisation
+
+```Javascript
+import AutocompleteResults from './components/AutocompleteResults';
+
+function App() {
+  const results = ['Paris', 'Londres', 'Berlin'];
+
+  const handleClick = (result: string) => {
+    console.log(result);
+  }
+
+  return (
+    <div>
+      <AutocompleteResults results={results} handleClick={handleClick} />
+    </div>
+  );
+}
+```
+
+### PopularResults
+
+Le composant PopularResults affiche les résultats de la recherche des villes populaires pour le composant Searchbar.
+
+#### Propriétés
+
+| Nom         | Type         | Description                           |
+| ----------- | ------------ | ------------------------------------- |
+| \`results\` | \`string[]\` | Tableau des résultats de la recherche |
+
+#### Exemple d'utilisation
+
+```Javascript
+import PopularResults from './components/PopularResults';
+
+function App() {
+  const results = ['Paris', 'Londres', 'Berlin'];
+
+  return (
+    <div>
+      <PopularResults results={results} />
+    </div>
+  );
+}
+```
