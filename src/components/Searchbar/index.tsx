@@ -29,6 +29,7 @@ const Searchbar: React.FC = () => {
     []
   );
   const [showResults, setShowResults] = useState<boolean>(false);
+  const [showSearch, setShowSearch] = useState<boolean>(false);
 
   // Références aux éléments DOM
   const buttonRef = useRef<HTMLDivElement>(null);
@@ -54,6 +55,7 @@ const Searchbar: React.FC = () => {
       setSearchValue("");
       setAutoCompleteResults([]);
       setPopularFromResults([]);
+      setShowSearch(false);
     }
   };
 
@@ -74,6 +76,8 @@ const Searchbar: React.FC = () => {
   const handleSearchChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchValue(value);
+    setPopularFromResults([]);
+    setShowSearch(false);
 
     if (value) {
       // Si la barre de recherche contient quelque chose, on cherche les villes qui correspondent à la recherche
@@ -81,144 +85,145 @@ const Searchbar: React.FC = () => {
       const autocompleteResponse = await fetch(autocompleteUrl);
       const autocompleteData = await autocompleteResponse.json();
       setAutoCompleteResults(autocompleteData);
-
-      // On cherche également les villes les plus populaires au départ de la ville recherchée
-      const popularFromUrl = `https://api.comparatrip.eu/cities/popular/from/${value}/5`;
-      const popularFromResponse = await fetch(popularFromUrl);
-      const popularFromData = await popularFromResponse.json();
-      setPopularFromResults(popularFromData);
     } else {
       // Si la barre de recherche est vide, on vide également les résultats
       setAutoCompleteResults([]);
-      setPopularFromResults([]);
     }
   };
-
-  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query="; // URL de Google Maps
-
-  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSearchSubmit = async (event: FormEvent<HTMLFormElement>) => {
     // Fonction de gestion de la soumission du formulaire
     event.preventDefault(); // Empêche la soumission par défaut
-    window.location.href = googleMapsUrl + encodeURIComponent(searchValue); // Redirige l'utilisateur vers l'URL de Google Maps avec la valeur de recherche encodée
+
+    // Requête pour obtenir les villes les plus populaires au départ de la ville recherchée
+    const popularFromUrl = `https://api.comparatrip.eu/cities/popular/from/${searchValue}/5`;
+    const popularFromResponse = await fetch(popularFromUrl); // Effectue une requête HTTP GET
+    const popularFromData = await popularFromResponse.json(); // Transforme la réponse en objet JavaScript
+    setPopularFromResults(popularFromData); // Met à jour les résultats de la recherche de villes populaires
+
+    setShowSearch(true); // Affiche la section de recherche
   };
 
   return (
-    <div className="searchbar"> {/* Conteneur principal */}
-      <div className="container"> {/* Conteneur pour le formulaire */}
-        <form className="formstyle" onSubmit={handleSearchSubmit}> {/* Formulaire de recherche */}
-          <div className={showResults ? "blur" : ""}></div> {/* Div pour flouter les résultats lorsqu'ils sont affichés */}
-          <div className="allcontent" ref={buttonRef}> {/* Conteneur pour le champ de recherche et le bouton de soumission */}
-            <input
-              className="textstyle" // Champ de recherche
-              placeholder="Une destination, demande..." // Placeholder pour le champ de recherche
-              type="text" // Type de champ de saisie
-              value={searchValue} // Valeur du champ de recherche
-              onChange={handleSearchChange} // Fonction de gestion du changement de valeur du champ de recherche
-              onClick={() => setShowResults(true)} // Fonction de gestion du clic sur le champ de recherche
-            />
-            <button
-              className="submitstyle" // Bouton de soumission
-              type="submit" // Type de bouton
-              data-testid="search-button" // ID de test
-            >
-              <Icon className="iconsubmit" name="search" /> {/* Icône de recherche de Semantic UI */}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {showResults && ( // Affiche les résultats s'il y a une valeur de recherche
-        <div className="results">
-          
-          {/* Conteneur des résultats */}
-          <div className="results__container" ref={resultsRef}>
-          
-            {/* Conteneur pour les résultats de recherche */}
-            {searchValue && ( // Affiche les résultats de l'autocomplétion s'il y a une valeur de recherche
-              <div className="autocomplete">
-                <h2>Suggestions :</h2> 
-                {/* Titre pour les résultats de l'autocomplétion */}
-                <ul>
-                  {/* Liste pour les résultats de l'autocomplétion */}
-                  {autoCompleteResults.map((result: autoCompleteResults) => (
-                    <li
-                      key={result.local_name}
-                      onClick={() => {
-                        // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
-                        setSearchValue(result.unique_name);
-                        // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
-                        handleSearchChange({
-                          target: {
-                            value: result.unique_name,
-                          },
-                        } as ChangeEvent<HTMLInputElement>);
-                      }}
-                    >
-                      <Icon name="building outline" />
-                      {result.unique_name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {searchValue && (
-              <div className="popularresults">
-                <h2>
-                  5 villes les plus populaires au départ de la ville "
-                  {searchValue}"
-                </h2>
-                <ul>
-                  {PopularFromResults.map((result: PopularResult) => (
-                    <li
-                      key={result.unique_name}
-                      onClick={() => {
-                        // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
-                        setSearchValue(result.unique_name);
-                        // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
-                        handleSearchChange({
-                          target: {
-                            value: result.unique_name,
-                          },
-                        } as ChangeEvent<HTMLInputElement>);
-                      }}
-                    >
-                      <Icon name="building outline" />
-                      {result.unique_name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Liste pour les résultats des villes populaires */}
-            <div className="popular">
-              <h2>5 villes les plus populaires :</h2>
-              <ul>
-                {popularResults.map((result: PopularResult) => (
-                  <li
-                    key={result.unique_name}
-                    onClick={() => {
-                      // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
-                      setSearchValue(result.unique_name);
-                      // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
-                      handleSearchChange({
-                        target: {
-                          value: result.unique_name,
-                        },
-                      } as ChangeEvent<HTMLInputElement>);
-                    }}
-                  >
-                    <Icon name="building outline" />
-                    {result.unique_name}
-                  </li>
-                ))}
-              </ul>
+    <>
+      {/* Conteneur principal */}
+      <div className="searchbar">
+        {/* Conteneur pour le formulaire */}
+        <div className="container">
+          {/* Formulaire de recherche */}
+          <form className="formstyle" onSubmit={handleSearchSubmit}>
+            {/* Div pour flouter les résultats lorsqu'ils sont affichés */}
+            <div className={showResults ? "blur" : ""}></div>
+            {/* Conteneur pour le champ de recherche et le bouton de soumission */}
+            <div className="allcontent" ref={buttonRef}>
+              <input
+                className="textstyle" // Champ de recherche
+                placeholder="Une destination, demande..." // Placeholder pour le champ de recherche
+                type="text" // Type de champ de saisie
+                value={searchValue} // Valeur du champ de recherche
+                onChange={handleSearchChange} // Fonction de gestion du changement de valeur du champ de recherche
+                onClick={() => setShowResults(true)} // Fonction de gestion du clic sur le champ de recherche
+              />
+              <button
+                className="submitstyle" // Bouton de soumission
+                type="submit" // Type de bouton
+                data-testid="search-button" // ID de test
+              >
+                <Icon className="iconsubmit" name="search" />
+                {/* Icône de recherche de Semantic UI */}
+              </button>
             </div>
-          </div>
+          </form>
         </div>
-      )}
-    </div>
+        {showResults && ( // Affiche les résultats s'il y a une valeur de recherche
+          <>
+            {/* Conteneur des résultats */}
+            <div className="results">
+              {/* Conteneur pour les résultats de recherche */}
+              <div className="results__container" ref={resultsRef}>
+                {searchValue &&
+                  showSearch === false && ( // Affiche les résultats de l'autocomplétion s'il y a une valeur de recherche
+                    <div className="autocomplete">
+                      {/* Titre pour les résultats de l'autocomplétion */}
+                      <h2>Suggestions :</h2>
+                      {/* Liste pour les résultats de l'autocomplétion */}
+                      <ul>
+                        {autoCompleteResults.map(
+                          (result: autoCompleteResults) => (
+                            <li
+                              key={result.local_name}
+                              onClick={() => {
+                                // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
+                                setSearchValue(result.unique_name);
+                                // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
+                                handleSearchChange({
+                                  target: {
+                                    value: result.unique_name,
+                                  },
+                                } as ChangeEvent<HTMLInputElement>);
+                              }}
+                            >
+                              <Icon name="building outline" />
+                              {result.unique_name}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                {/* Liste pour les résultats des villes populaires */}
+                {showSearch === false && (
+                  <div className="popular">
+                    <h2>Villes les plus populaires :</h2>
+                    <ul>
+                      {popularResults.map((result: PopularResult) => (
+                        <li
+                          key={result.unique_name}
+                          onClick={() => {
+                            // Mettre à jour la valeur de recherche avec le nom unique du résultat sélectionné
+                            setSearchValue(result.unique_name);
+                            // Appeler la fonction de gestion du changement de recherche avec la valeur mise à jour
+                            handleSearchChange({
+                              target: {
+                                value: result.unique_name,
+                              },
+                            } as ChangeEvent<HTMLInputElement>);
+                          }}
+                        >
+                          <Icon name="building outline" />
+                          {result.unique_name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* // Vérifie si showSearch est vrai (true) */}
+                {showSearch && (
+                  // Si c'est le cas, affiche les résultats populaires correspondant à la recherche
+                  <div className="popularresults">
+                    <h2>
+                      Villes les plus populaires au départ de la ville "
+                      <span>{searchValue}"</span>
+                    </h2>
+                    <ul>
+                      {PopularFromResults.map((result: PopularResult) => (
+                        // Pour chaque résultat populaire, affiche une icône et le nom de la ville
+                        <li key={result.unique_name}>
+                          <Icon name="building outline" />
+                          {result.unique_name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+        {/* Affiche le Batbat sur la Home */}
+        <div className="batbat"></div>
+      </div>
+    </>
   );
 };
 

@@ -76,6 +76,16 @@
     }
   }
 
+  .batbat {
+    background-image: url(https://teetee.eu/wp-content/uploads//2015/03/design_20150105154112.jpg);
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+    position: absolute;
+  }
+
   .results {
     border-radius: 15px;
     position: absolute;
@@ -87,6 +97,7 @@
     justify-content: center;
 
     .results__container {
+      cursor: default;
       width: 100%;
       overflow: auto;
       scrollbar-color: #127996;
@@ -107,9 +118,26 @@
         }
       }
 
-      li {
-        margin-left: 1rem;
-        font-weight: bold;
+      .autocomplete,
+      .popular {
+        li {
+          cursor: pointer;
+          margin-left: 1rem;
+          font-weight: bold;
+          width: fit-content;
+        }
+      }
+
+      .popularresults {
+        span {
+          font-weight: bold;
+        }
+
+        li {
+          margin-left: 1rem;
+          font-weight: bold;
+          width: fit-content;
+        }
       }
     }
   }
